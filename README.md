@@ -759,4 +759,180 @@ BANNER = r"""
      ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
 """
 
-COLORS = [Fore.RED, Fore.YELLOW, Fore.GREEN, Fore.C
+COLORS = [Fore.RED, Fore.YELLOW, Fore.GREEN, Fore.CYAN, Fore.BLUE, Fore.MAGENTA]
+
+def clear(): os.system("clear")
+
+def banner():
+    for line in BANNER.split("\n"):
+        c = COLORS[len(line) % len(COLORS)]
+        print(Style.BRIGHT + c + line + Style.RESET_ALL)
+        time.sleep(0.02)
+    print()
+    print(Fore.CYAN + Style.BRIGHT + "  ╔════════════════════════════════════════════════════╗")
+    print(Fore.CYAN + Style.BRIGHT + "  ║        DEVELOPER :  SHEIKH  SABBIR                 ║")
+    print(Fore.CYAN + Style.BRIGHT + "  ║        ORG       :  CyberNet-SK                    ║")
+    print(Fore.CYAN + Style.BRIGHT + "  ║        MODE      :  Termux Scan-Only               ║")
+    print(Fore.CYAN + Style.BRIGHT + "  ╚════════════════════════════════════════════════════╝\n")
+
+def scan():
+    try:
+        out = subprocess.check_output(["termux-wifi-scaninfo"],
+                                       stderr=subprocess.DEVNULL,
+                                       timeout=15).decode()
+        data = json.loads(out)
+    except FileNotFoundError:
+        print(Fore.RED + "[!] termux-api not installed" + Style.RESET_ALL)
+        print(Fore.YELLOW + "    Run: pkg install termux-api" + Style.RESET_ALL)
+        sys.exit(1)
+    best = {}
+    for n in data:
+        s = (n.get("ssid") or "").strip()
+        if not s: continue
+        if s not in best or n["level"] > best[s]["level"]:
+            best[s] = n
+    return sorted(best.values(), key=lambda x: x["level"], reverse=True)
+
+def bars(l):
+    if l >= -50: return Fore.GREEN + "▂▄▆█" + Style.RESET_ALL
+    if l >= -60: return Fore.GREEN + "▂▄▆_" + Style.RESET_ALL
+    if l >= -70: return Fore.YELLOW + "▂▄__" + Style.RESET_ALL
+    if l >= -80: return Fore.RED + "▂___" + Style.RESET_ALL
+    return Fore.RED + "____" + Style.RESET_ALL
+
+def show(nets):
+    print()
+    print(Fore.MAGENTA + "─" * 60 + Style.RESET_ALL)
+    print(Fore.CYAN + Style.BRIGHT + f"  {'#':<4} {'WiFi NAME':<24} {'SIGNAL':<9} BARS")
+    print(Fore.MAGENTA + "─" * 60 + Style.RESET_ALL)
+    for i, n in enumerate(nets, 1):
+        num = Fore.GREEN + Style.BRIGHT + f"[{i}]" + Style.RESET_ALL
+        name = Fore.WHITE + Style.BRIGHT + n["ssid"][:22].ljust(24) + Style.RESET_ALL
+        sig = Fore.CYAN + f"{n['level']:>4} dBm".ljust(9) + Style.RESET_ALL
+        print(f"  {num:<6} {name} {sig} {bars(n['level'])}")
+    print(Fore.MAGENTA + "─" * 60 + Style.RESET_ALL)
+
+def main():
+    clear(); banner()
+    while True:
+        print(Fore.YELLOW + "[*] Scanning..." + Style.RESET_ALL)
+        nets = scan()
+        show(nets) if nets else print(Fore.RED + "No networks found" + Style.RESET_ALL)
+        print(Fore.CYAN + "\n  'r' rescan / 'q' quit" + Style.RESET_ALL)
+        print(Fore.YELLOW + "  ⚠️  Termux: scan-only. Brute force not possible without root.\n" + Style.RESET_ALL)
+        try:
+            c = input(Fore.GREEN + Style.BRIGHT + "  SK-HACKER ❯ " + Style.RESET_ALL).strip()
+        except (KeyboardInterrupt, EOFError):
+            print("\n  Bye! 👋"); return
+        if c.lower() in ("q", "quit"): return
+        clear(); banner()
+
+if __name__ == "__main__":
+    try: main()
+    except KeyboardInterrupt: print("\n  Bye! 👋")
+```
+
+## 3️⃣ `password.txt`
+
+```
+12345678
+password
+123456789
+admin123
+wifi1234
+01712345678
+test1234
+qwerty123
+11223344
+87654321
+abcd1234
+welcome1
+admin
+root
+1234
+admin@123
+pass@123
+```
+
+## 4️⃣ `requirements.txt`
+
+```txt
+pywifi==1.1.11
+comtypes==1.2.1
+colorama==0.4.6
+```
+
+## 5️⃣ `.gitignore`
+
+```
+__pycache__/
+*.py[cod]
+*.so
+.Python
+env/
+venv/
+.vscode/
+.idea/
+*.log
+private_password.txt
+.DS_Store
+Thumbs.db
+```
+
+---
+
+# ⚠️ **LEGAL WARNING**
+
+> **This tool is for EDUCATIONAL PURPOSES ONLY.**
+>
+> Unauthorized access to WiFi networks is **ILLEGAL** worldwide:
+>
+> | Country | Law | Penalty |
+> |---------|-----|---------|
+> | 🇧🇩 Bangladesh | ICT Act 2006, §66 | 3 years jail / 3 lakh BDT |
+> | 🇮🇳 India | IT Act 2000, §66 | 3 years jail / 5 lakh INR |
+> | 🇺🇸 USA | CFAA | Up to 10 years jail |
+> | 🇬🇧 UK | Computer Misuse Act 1990 | Up to 10 years jail |
+>
+> ✅ Allowed: Your own WiFi, networks with written permission
+> ❌ Not allowed: Any unauthorized network access
+
+---
+
+# 📜 **LICENSE**
+
+```
+Educational Use Only License
+Copyright (c) 2025 SHEIKH SABBIR (CyberNet-SK)
+Repo: https://github.com/CyberNet-SK/SK-WIFI-HACKER
+
+Personal educational purposes only.
+Commercial use, illegal use, redistribution without credit — NOT allowed.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+```
+
+---
+
+# 🤝 **CONTRIBUTING**
+
+1. Fork the repo
+2. Create branch: `git checkout -b feature/AmazingFeature`
+3. Commit: `git commit -m '✨ Add AmazingFeature'`
+4. Push: `git push origin feature/AmazingFeature`
+5. Open Pull Request
+
+---
+
+<div align="center">
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:ff00ff,50:00ffff,100:00ff00&height=120&section=footer"/>
+
+### ⭐ **If this project helped you, give it a Star!** ⭐
+
+**Made with 💚 by SHEIKH SABBIR | CyberNet-SK**
+
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=14&duration=3000&pause=1000&color=00FF88&center=true&vCenter=true&width=400&lines=Stay+Curious;Stay+Ethical;Stay+Hacking" />
+
+</div>
+
+<!-- ═══════════════════ END OF README ═══════════════════ -->
